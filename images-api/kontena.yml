@@ -1,0 +1,33 @@
+stack: jussi/images-api
+variables:
+  secret_base:
+    type: string
+    from:
+      vault: ${STACK}-secret-base
+      random_string: 16
+    to:
+      vault: ${STACK}-secret-base
+
+services:
+
+  api:
+    build: .
+    image: jnummelin/images-api:latest
+    environment:
+      KONG_URI: http://kong.${GRID}.kontena.local:8001/
+      UPSTREAM_URL: http://api.${STACK}.${GRID}.kontena.local:3000/
+    command: bundle exec rails s -e production -b 0.0.0.0
+    hooks:
+      post_start:
+        - name: sleep
+          cmd: sleep 10
+          instances: 1
+          oneshot: true
+        - name: register Kong API
+          cmd: bundle exec rails kong:register
+          instances: 1
+          oneshot: true
+    secrets:
+      - secret: ${STACK}-secret-base
+        name: SECRET_KEY_BASE
+        type: env
