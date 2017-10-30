@@ -28,4 +28,23 @@ namespace :kong do
     end
   end
 
+  desc "Add rate-limit"
+  task rate_limit: :environment do
+    if products_api = Kong::Api.find_by_name('products-api')
+      # Add rate-limiting if not there
+      rate_limit = products_api.plugins.find {|p| p.name == 'rate-limiting' }
+      unless rate_limit
+        rate_limit = Kong::Plugin.new({
+          name: 'rate-limiting',
+          config: {
+            minute: 5
+          }
+        })
+        rate_limit.api = products_api
+        rate_limit.save
+      end
+
+    end
+  end
+
 end
