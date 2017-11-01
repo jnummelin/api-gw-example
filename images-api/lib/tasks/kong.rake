@@ -4,13 +4,13 @@ namespace :kong do
   task register: :environment do
     puts "Starting to register /images API"
     upstream_url = ENV['UPSTREAM_URL'] || 'http://api.images-api.demo-grid.kontena.local:3000/'
-
+    hosts = (ENV['API_HOSTS'] || 'demo-api.kontena.works').split(',')
     # Create images API
     images_api = Kong::Api.find_by_name('images-api')
     unless images_api
       images_api = Kong::Api.create(
         name: 'images-api',
-        hosts: ['demo-api.kontena.works'],
+        hosts: hosts,
         uris: ['/images'],
         strip_uri: false,
         upstream_url: upstream_url)

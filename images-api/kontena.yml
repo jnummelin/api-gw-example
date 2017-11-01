@@ -1,5 +1,9 @@
 stack: jussi/images-api
 variables:
+  hosts:
+    type: string
+    from:
+      prompt: Host names for the API
   secret_base:
     type: string
     from:
@@ -16,6 +20,7 @@ services:
     environment:
       KONG_URI: http://kong.${GRID}.kontena.local:8001/
       UPSTREAM_URL: http://api.${STACK}.${GRID}.kontena.local:3000/
+      API_HOSTS: ${hosts}
     command: bundle exec rails s -e production -b 0.0.0.0
     hooks:
       post_start:
